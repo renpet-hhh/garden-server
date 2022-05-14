@@ -4,6 +4,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import ufc.erv.data.Plant
+import io.ktor.http.*
+import kotlin.io.path.toPath
 
 val mockPlants: List<Plant> = listOf(
     Plant(id="0", popularName="Beijo pintado", scientificName="Impatiens hawkeri",
@@ -24,6 +26,13 @@ fun Application.configureRouting() {
         }
         get("/u/{user}/plants") {
             call.respond(mockPlants)
+        }
+        get("/u/{user}/plant/image/{id}") {
+            val relativePath = "/u/${call.parameters["user"]}/plant/image/${call.parameters["id"]}.jpg"
+            val resourceFile = Application::class.java.getResource(relativePath)?.toURI()?.toPath()?.toFile()
+            resourceFile?.apply {
+                call.respondFile(this)
+            } ?: call.respond(HttpStatusCode.NotFound)
         }
     }
 }

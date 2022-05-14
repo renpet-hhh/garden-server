@@ -30,5 +30,14 @@ class ApplicationTest {
             assertEquals(5, plants.size)
             assertEquals("Beijo pintado", plants[0].popularName)
         }
+        client.get("/u/mock-user/plant/image/0").apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+        client.get("/u/mock-user/plant/image/1").apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+        client.get("/u/non-existent-user/plant/image/0").apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
     }
 }
