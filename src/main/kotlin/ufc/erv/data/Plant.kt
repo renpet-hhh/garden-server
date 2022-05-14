@@ -1,8 +1,12 @@
 package ufc.erv.data
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Plant(
     val id: String,
-    val popularName: String,
-    val scientificName: String?,
-    val description: String?,
+    var popularName: String,
+    var scientificName: String = "",
+    var description: String = "",
+    var localization: String = "",
 )
