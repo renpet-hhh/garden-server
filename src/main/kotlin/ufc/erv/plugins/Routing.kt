@@ -5,7 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import ufc.erv.data.Plant
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.auth.*
+import io.ktor.server.request.*
+import java.io.File
+import java.nio.file.Paths
 import kotlin.io.path.toPath
 
 val mockPlants: List<Plant> = listOf(
@@ -40,6 +44,43 @@ fun Application.configureRouting() {
         authenticate("user") {
             get("/login") {
                 call.respond(HttpStatusCode.OK)
+            }
+            post("/register/plant") {
+                val username = call.principal<UserIdPrincipal>()?.name
+                if (username == null) {
+                    call.respond(HttpStatusCode.InternalServerError, "Nome de usuário não encontrado, apesar de já estar autenticado")
+                    return@post
+                }
+                val plantId = "test_id"
+                val projectDirAbsolutePath = Paths.get("").toAbsolutePath().toString()
+                val resourcesPath = Paths.get(projectDirAbsolutePath, "/src/main/resources").toString()
+                val userPath = Paths.get(resourcesPath, "/u/${username}/plant/image").toString()
+                val imagePath = Paths.get(userPath, "/$plantId").toString()
+
+                val plant = Plant(plantId, "")
+                val multipart = call.receiveMultipart()
+                multipart.forEachPart { part ->
+                    if (part is PartData.FileItem) {
+                        val ext = part.contentType?.contentSubtype
+                        val file = File("$imagePath.$ext")
+                        part.streamProvider().use { its ->
+                            file.outputStream().buffered().use { it ->
+                                its.copyTo(it)
+                            }
+                        }
+                        part.dispose()
+                    }
+                    if (part is PartData.FormItem) {
+                        when (part.name) {
+                            "popularName" -> plant.popularName = part.value
+                            "scientificName" -> plant.scientificName = part.value
+                            "localization" -> plant.localization = part.value
+                            "description" -> plant.description = part.value
+                        }
+                    }
+                }
+                println("Usuário $username cadastrou planta $plant")
+                call.respond(HttpStatusCode.Created)
             }
         }
     }
