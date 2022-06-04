@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import ufc.erv.data.Plant
 import io.ktor.http.*
+import io.ktor.server.auth.*
 import kotlin.io.path.toPath
 
 val mockPlants: List<Plant> = listOf(
@@ -19,6 +20,8 @@ val mockPlants: List<Plant> = listOf(
     Plant(id="4", popularName="Dália",
         description="Regar 2 vezes por semana. Luminosidade: meia-sombra. Plantar em vasos, jardineiras ou canteiros"),
 )
+
+
 fun Application.configureRouting() {
     routing {
         get("/") {
@@ -33,6 +36,11 @@ fun Application.configureRouting() {
             resourceFile?.apply {
                 call.respondFile(this)
             } ?: call.respond(HttpStatusCode.NotFound)
+        }
+        authenticate("user") {
+            get("/login") {
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
