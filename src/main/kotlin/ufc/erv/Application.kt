@@ -1,16 +1,19 @@
 package ufc.erv
 
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import io.ktor.server.application.*
+import ufc.erv.db.DB
 import ufc.erv.plugins.*
 
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        configureAuth()
-        configureRouting()
-        configureSerialization()
-        configureMonitoring()
-        configureHTTP()
-    }.start(wait = true)
+fun main(args: Array<String>) {
+    io.ktor.server.netty.EngineMain.main(args)
+}
+
+fun Application.module() {
+    DB.init()
+    configureAuth()
+    configureRouting()
+    configureSerialization()
+    configureMonitoring()
+    configureHTTP()
 }

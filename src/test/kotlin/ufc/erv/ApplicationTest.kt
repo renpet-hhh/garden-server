@@ -7,10 +7,10 @@ import kotlin.test.*
 import io.ktor.server.testing.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import ufc.erv.data.Plant
 import ufc.erv.plugins.configureHTTP
 import ufc.erv.plugins.configureRouting
 import ufc.erv.plugins.configureSerialization
+import ufc.erv.response.UserPlantResponse
 
 class ApplicationTest {
     @Test
@@ -26,7 +26,7 @@ class ApplicationTest {
         }
         client.get("/u/mock-user/plants").apply {
             assertEquals(HttpStatusCode.OK, status)
-            val plants = Json.decodeFromString<List<Plant>>(bodyAsText())
+            val plants = Json.decodeFromString<List<UserPlantResponse>>(bodyAsText())
             assertEquals(5, plants.size)
             assertEquals("Beijo pintado", plants[0].popularName)
         }
